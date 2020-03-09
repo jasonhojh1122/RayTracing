@@ -1,0 +1,4 @@
+# exclude binary files under ./bin
+bin/*
+
+# exclude binary files
