@@ -1,4 +1,5 @@
 # exclude binary files under ./bin
 bin/*
 
-# exclude binary files
+# exclude output image
+*.ppm
