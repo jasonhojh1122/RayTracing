@@ -3,3 +3,6 @@ bin/*
 
 # exclude output image
 *.ppm
+
+# exclude vscode setting
+.vscode/*
