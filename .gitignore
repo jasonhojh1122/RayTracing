@@ -6,3 +6,6 @@ bin/*
 
 # exclude vscode setting
 .vscode/*
+
+# exclude testing code
+test.cpp
