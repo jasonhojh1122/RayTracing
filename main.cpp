@@ -32,21 +32,51 @@ glm::vec3 color(Ray& ray, Hitable *world, int depth){
     }
 }
 
+Hitable *randomScene(){
+    int n = 500;
+    Hitable **list = new Hitable*[n+1];
+    list[0] = new Sphere(glm::vec3(0.0, -1000.0, 0.0), 1000.0, new Lambertian(glm::vec3(0.5, 0.5, 0.5)));
+    int i = 1;
+    std::uniform_real_distribution<> dis(0.0, 1.0);
+    for (int a = -11; a < 11; ++a){
+        for (int b = -11; b < 11; ++b){
+            float chooseMat = dis(gen);
+            glm::vec3 center(a + 0.9 * dis(gen), 0.2, b + 0.9 * dis(gen));
+            if (glm::length(center - glm::vec3(4, 0.2, 0.0)) > 0.9){
+                if (chooseMat < 0.75) {
+                    list[i++] = new Sphere(center, 0.2, new Lambertian(glm::vec3(dis(gen) * dis(gen), dis(gen) * dis(gen), dis(gen) * dis(gen))));
+                }
+                else if (chooseMat < 0.95){
+                    list[i++] = new Sphere(center, 0.2,
+                        new Metal(glm::vec3(0.5*(1+dis(gen)), 0.5*(1+dis(gen)), 0.5*(1+dis(gen))), 0.5*dis(gen)));
+                }
+                else {
+                    list[i++] = new Sphere(center, 0.2, new Dielectric(1.5));
+                }
+            }
+        }
+    }
+    list[i++] = new Sphere(glm::vec3(0, 1, 0), 1.0, new Dielectric(1.5));
+    list[i++] = new Sphere(glm::vec3(-4, 1, 0), 1.0, new Lambertian(glm::vec3(0.4, 0.2, 0.1)));
+    list[i++] = new Sphere(glm::vec3(4, 1, 0), 1.0, new Metal(glm::vec3(0.7, 0.6, 0.5), 0.0));
+    return new HitableList(list, i);
+}
+
 int main(){
 
-    int multiple = 200;
-    int width = 2 * multiple;
-    int height = 1 * multiple;
+    int width = 1200;
+    int height = 800;
     float aspect = (float)width / (float)height;
-    int ns = 50;
+    int ns = 10;
 
-    glm::vec3 lookFrom(3.0f, 3.0f, 2.0f);
-    glm::vec3 lookAt(0.0f, 0.0f, -1.0f);
-    float distToFocus = glm::length(lookFrom - lookAt);
-    float aperture = 4.0;
+    glm::vec3 lookFrom(13.0f, 2.0f, 3.0f);
+    glm::vec3 lookAt(0.0f, 0.0f, 0.0f);
+    float distToFocus = 10.0;
+    float aperture = 0.1;
     float vFov = 20;
     Camera camera(lookFrom, lookAt, glm::vec3(0.0f, 1.0f, 0.0f), vFov, aspect, aperture, distToFocus);
 
+    /*
     Hitable *list[5];
     list[0] = new Sphere(glm::vec3(0.0, 0.0, -1.0), 0.5, new Lambertian(glm::vec3(0.8, 0.3, 0.3)));
     list[1] = new Sphere(glm::vec3(0.0, -100.5, -1.0), 100, new Lambertian(glm::vec3(0.8, 0.8, 0.0)));
@@ -54,7 +84,9 @@ int main(){
     list[3] = new Sphere(glm::vec3(-1.0, 0.0, -1.0), 0.5, new Dielectric(1.5));
     list[4] = new Sphere(glm::vec3(-1.0, 0.0, -1.0), -0.3, new Dielectric(1.8));
     Hitable *world = new HitableList(list, 5);
-    
+    */
+    Hitable *world = randomScene();
+
     std::cout << "P3\n" << width << " " << height << "\n255\n";
     
     std::uniform_real_distribution<> dis(0.0, 1.0);
