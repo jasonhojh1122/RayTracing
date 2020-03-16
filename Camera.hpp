@@ -15,8 +15,10 @@ glm::vec3 randomInUnitDisk(std::mt19937& gen){
 }
 
 class Camera{
-    public:
-    Camera(glm::vec3 lookFrom, glm::vec3 lookAt, glm::vec3 vUp, float vFov, float aspect, float aperture, float focusDist){
+public:
+    Camera(glm::vec3 lookFrom, glm::vec3 lookAt, glm::vec3 vUp, float vFov, float aspect, float aperture, float focusDist, double t1, double t2){
+        time0 = t1;
+        time1 = t2;
         lensRadius = aperture / 2;
         float theta = vFov * M_PI / 180.0f;
         float halfHeight = tan(theta / 2);
@@ -34,14 +36,18 @@ class Camera{
     Ray getRay(float s, float t, std::mt19937& gen){
         glm::vec3 rd = lensRadius * randomInUnitDisk(gen);
         glm::vec3 offset = u * rd.x + v * rd.y;
-        return Ray(origin + offset, lowerLeftCorner + s * horizontal + t * vertical - origin - offset);
+        std::uniform_real_distribution<> dis(0.0, 1.0);
+        double time = time0 + dis(gen) * (time1 - time0);
+        return Ray(origin + offset, lowerLeftCorner + s * horizontal + t * vertical - origin - offset, time);
     }
 
-    private:
+private:
     glm::vec3 origin;
     glm::vec3 vertical;
     glm::vec3 horizontal;
     glm::vec3 lowerLeftCorner;
     glm::vec3 u, v, w; // u:horizontal v:vertical
     float lensRadius;
+    double time0;
+    double time1;
 };

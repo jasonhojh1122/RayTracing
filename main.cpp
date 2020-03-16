@@ -33,18 +33,20 @@ glm::vec3 color(Ray& ray, Hitable *world, int depth){
 }
 
 Hitable *randomScene(){
-    int n = 500;
+    int n = 5000;
     Hitable **list = new Hitable*[n+1];
     list[0] = new Sphere(glm::vec3(0.0, -1000.0, 0.0), 1000.0, new Lambertian(glm::vec3(0.5, 0.5, 0.5)));
     int i = 1;
     std::uniform_real_distribution<> dis(0.0, 1.0);
-    for (int a = -11; a < 11; ++a){
-        for (int b = -11; b < 11; ++b){
+    for (int a = -10; a < 10; ++a){
+        for (int b = -10; b < 10; ++b){
             float chooseMat = dis(gen);
             glm::vec3 center(a + 0.9 * dis(gen), 0.2, b + 0.9 * dis(gen));
             if (glm::length(center - glm::vec3(4, 0.2, 0.0)) > 0.9){
                 if (chooseMat < 0.75) {
-                    list[i++] = new Sphere(center, 0.2, new Lambertian(glm::vec3(dis(gen) * dis(gen), dis(gen) * dis(gen), dis(gen) * dis(gen))));
+                    // list[i++] = new Sphere(center, 0.2, new Lambertian(glm::vec3(dis(gen) * dis(gen), dis(gen) * dis(gen), dis(gen) * dis(gen))));
+                    list[i++] = new MovingSphere(center, center + glm::vec3(0.0, 0.5*dis(gen), 0.0), 0.0, 1.0, 
+                                        0.2, new Lambertian(glm::vec3(dis(gen)*dis(gen), dis(gen)*dis(gen), dis(gen)*dis(gen))));
                 }
                 else if (chooseMat < 0.95){
                     list[i++] = new Sphere(center, 0.2,
@@ -71,10 +73,10 @@ int main(){
 
     glm::vec3 lookFrom(13.0f, 2.0f, 3.0f);
     glm::vec3 lookAt(0.0f, 0.0f, 0.0f);
-    float distToFocus = glm::length(lookFrom - lookAt);
-    float aperture = 0.1;
-    float vFov = 30;
-    Camera camera(lookFrom, lookAt, glm::vec3(0.0f, 1.0f, 0.0f), vFov, aspect, aperture, distToFocus);
+    float distToFocus = 10.0;
+    float aperture = 0.0;
+    float vFov = 20;
+    Camera camera(lookFrom, lookAt, glm::vec3(0.0f, 1.0f, 0.0f), vFov, aspect, aperture, distToFocus, 0.0, 1.0);
 
     /*
     Hitable *list[5];

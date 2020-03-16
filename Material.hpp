@@ -38,48 +38,42 @@ float schlick(float cosine, float refIdx){
 }
 
 class Material{
-    public:
+public:
     virtual bool scatter(Ray& rIn, hitRecord& rec, glm::vec3& attenuation, Ray& scattered, std::mt19937& gen) = 0;
 };
 
 class Lambertian : public Material{
-    public:
-
+public:
     Lambertian(glm::vec3 a){albedo = a;};
-
     virtual bool scatter(Ray& rIn, hitRecord& rec, glm::vec3& attenuation, Ray& scattered, std::mt19937& gen) override{
         glm::vec3 target = rec.p + rec.normal + randomPointInUnitSphere(gen);
-        scattered = Ray(rec.p, target - rec.p);
+        scattered = Ray(rec.p, target - rec.p, rIn.getTime());
         attenuation = albedo;
         return true;
     }
 
-    private:
+private:
     glm::vec3 albedo;
 };
 
 class Metal : public Material{
-
-    public:
+public:
     Metal(glm::vec3 a, float r) {albedo = a; fuzz = r;};
-
     virtual bool scatter(Ray& rIn, hitRecord& rec, glm::vec3& attenuation, Ray& scattered, std::mt19937& gen) override{
         glm::vec3 reflected = reflect(glm::normalize(rIn.getDirection()), rec.normal);
-        scattered = Ray(rec.p, reflected + fuzz * randomPointInUnitSphere(gen));
+        scattered = Ray(rec.p, reflected + fuzz * randomPointInUnitSphere(gen), rIn.getTime());
         attenuation = albedo;
         return (glm::dot(scattered.getDirection(), rec.normal) > 0);
     }
 
-    private:
+private:
     glm::vec3 albedo;
     float fuzz;
-
 };
 
 class Dielectric : public Material{
-    public:
+public:
     Dielectric(float ri) : refIdx(ri){};
-
     virtual bool scatter(Ray& rIn, hitRecord& rec, glm::vec3& attenuation, Ray& scattered, std::mt19937& gen){
         glm::vec3 outNormal;
         glm::vec3 reflected = reflect(rIn.getDirection(), rec.normal);
@@ -109,14 +103,14 @@ class Dielectric : public Material{
 
         std::uniform_real_distribution<> dis(0.0, 1.0);
         if (dis(gen) < reflectProb){
-            scattered = Ray(rec.p, reflected);
+            scattered = Ray(rec.p, reflected, rIn.getTime());
         }
         else {
-            scattered = Ray(rec.p, refracted);
+            scattered = Ray(rec.p, refracted, rIn.getTime());
         }
         return true;
     }
 
-    private:
+private:
     float refIdx;
 };
