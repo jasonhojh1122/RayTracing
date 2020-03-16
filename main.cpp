@@ -67,13 +67,13 @@ int main(){
     int width = 1200;
     int height = 800;
     float aspect = (float)width / (float)height;
-    int ns = 10;
+    int ns = 15;
 
     glm::vec3 lookFrom(13.0f, 2.0f, 3.0f);
     glm::vec3 lookAt(0.0f, 0.0f, 0.0f);
-    float distToFocus = 10.0;
+    float distToFocus = glm::length(lookFrom - lookAt);
     float aperture = 0.1;
-    float vFov = 20;
+    float vFov = 30;
     Camera camera(lookFrom, lookAt, glm::vec3(0.0f, 1.0f, 0.0f), vFov, aspect, aperture, distToFocus);
 
     /*
