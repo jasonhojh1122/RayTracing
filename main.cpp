@@ -2,7 +2,6 @@
 #include <cmath>
 #include <iostream>
 #include <limits.h>
-#include <random>
 
 #include "Ray.hpp"
 #include "HitableList.hpp"
@@ -10,15 +9,12 @@
 #include "Camera.hpp"
 #include "Material.hpp"
 
-std::random_device rd;
-std::mt19937 gen(rd());
-
 glm::vec3 color(Ray& ray, Hitable *world, int depth){
     hitRecord rec;
     if (world->hit(ray, 0.001, FLT_MAX, rec)){
         Ray scattered;
         glm::vec3 attenuation;
-        if (depth < 50 && rec.matPtr->scatter(ray, rec, attenuation, scattered, gen)){
+        if (depth < 50 && rec.matPtr->scatter(ray, rec, attenuation, scattered)){
             return attenuation * color(scattered, world, depth+1);
         }
         else {
@@ -40,17 +36,17 @@ Hitable *randomScene(){
     std::uniform_real_distribution<> dis(0.0, 1.0);
     for (int a = -10; a < 10; ++a){
         for (int b = -10; b < 10; ++b){
-            float chooseMat = dis(gen);
-            glm::vec3 center(a + 0.9 * dis(gen), 0.2, b + 0.9 * dis(gen));
+            float chooseMat = realRand();
+            glm::vec3 center(a + 0.9 * realRand(), 0.2, b + 0.9 * realRand());
             if (glm::length(center - glm::vec3(4, 0.2, 0.0)) > 0.9){
                 if (chooseMat < 0.75) {
-                    // list[i++] = new Sphere(center, 0.2, new Lambertian(glm::vec3(dis(gen) * dis(gen), dis(gen) * dis(gen), dis(gen) * dis(gen))));
-                    list[i++] = new MovingSphere(center, center + glm::vec3(0.0, 0.5*dis(gen), 0.0), 0.0, 1.0, 
-                                        0.2, new Lambertian(glm::vec3(dis(gen)*dis(gen), dis(gen)*dis(gen), dis(gen)*dis(gen))));
+                    // list[i++] = new Sphere(center, 0.2, new Lambertian(glm::vec3(realRand() * realRand(), realRand() * realRand(), realRand() * realRand())));
+                    list[i++] = new MovingSphere(center, center + glm::vec3(0.0, 0.5*realRand(), 0.0), 0.0, 1.0, 
+                                        0.2, new Lambertian(glm::vec3(realRand()*realRand(), realRand()*realRand(), realRand()*realRand())));
                 }
                 else if (chooseMat < 0.95){
                     list[i++] = new Sphere(center, 0.2,
-                        new Metal(glm::vec3(0.5*(1+dis(gen)), 0.5*(1+dis(gen)), 0.5*(1+dis(gen))), 0.5*dis(gen)));
+                        new Metal(glm::vec3(0.5*(1+realRand()), 0.5*(1+realRand()), 0.5*(1+realRand())), 0.5*realRand()));
                 }
                 else {
                     list[i++] = new Sphere(center, 0.2, new Dielectric(1.5));
@@ -97,9 +93,9 @@ int main(){
             
             glm::vec3 col(0.0, 0.0, 0.0);
             for (int s = 0; s < ns; ++s){
-                float u = (float)(i + dis(gen)) / (float)width;
-                float v = (float)(j + dis(gen)) / (float)height;
-                Ray ray = camera.getRay(u, v, gen);
+                float u = (float)(i + realRand()) / (float)width;
+                float v = (float)(j + realRand()) / (float)height;
+                Ray ray = camera.getRay(u, v);
                 col += color(ray, world, 0);
             }
             

@@ -4,12 +4,13 @@
 #include <random>
 #include "Hitable.hpp"
 #include "Ray.hpp"
+#include "RealRand.hpp"
 
-glm::vec3 randomPointInUnitSphere(std::mt19937& gen){
+glm::vec3 randomPointInUnitSphere(){
     std::uniform_real_distribution<> dis(0.0, 1.0);
     glm::vec3 p;
     do {
-        p = 2.0f * glm::vec3(dis(gen), dis(gen), dis(gen)) - glm::vec3(1.0, 1.0, 1.0);
+        p = 2.0f * glm::vec3(realRand(), realRand(), realRand()) - glm::vec3(1.0, 1.0, 1.0);
     } while(glm::length(p) >= 1.0);
     return p;
 }
@@ -39,14 +40,14 @@ float schlick(float cosine, float refIdx){
 
 class Material{
 public:
-    virtual bool scatter(Ray& rIn, hitRecord& rec, glm::vec3& attenuation, Ray& scattered, std::mt19937& gen) = 0;
+    virtual bool scatter(Ray& rIn, hitRecord& rec, glm::vec3& attenuation, Ray& scattered) = 0;
 };
 
 class Lambertian : public Material{
 public:
     Lambertian(glm::vec3 a){albedo = a;};
-    virtual bool scatter(Ray& rIn, hitRecord& rec, glm::vec3& attenuation, Ray& scattered, std::mt19937& gen) override{
-        glm::vec3 target = rec.p + rec.normal + randomPointInUnitSphere(gen);
+    virtual bool scatter(Ray& rIn, hitRecord& rec, glm::vec3& attenuation, Ray& scattered) override{
+        glm::vec3 target = rec.p + rec.normal + randomPointInUnitSphere();
         scattered = Ray(rec.p, target - rec.p, rIn.getTime());
         attenuation = albedo;
         return true;
@@ -59,9 +60,9 @@ private:
 class Metal : public Material{
 public:
     Metal(glm::vec3 a, float r) {albedo = a; fuzz = r;};
-    virtual bool scatter(Ray& rIn, hitRecord& rec, glm::vec3& attenuation, Ray& scattered, std::mt19937& gen) override{
+    virtual bool scatter(Ray& rIn, hitRecord& rec, glm::vec3& attenuation, Ray& scattered) override{
         glm::vec3 reflected = reflect(glm::normalize(rIn.getDirection()), rec.normal);
-        scattered = Ray(rec.p, reflected + fuzz * randomPointInUnitSphere(gen), rIn.getTime());
+        scattered = Ray(rec.p, reflected + fuzz * randomPointInUnitSphere(), rIn.getTime());
         attenuation = albedo;
         return (glm::dot(scattered.getDirection(), rec.normal) > 0);
     }
@@ -74,7 +75,7 @@ private:
 class Dielectric : public Material{
 public:
     Dielectric(float ri) : refIdx(ri){};
-    virtual bool scatter(Ray& rIn, hitRecord& rec, glm::vec3& attenuation, Ray& scattered, std::mt19937& gen){
+    virtual bool scatter(Ray& rIn, hitRecord& rec, glm::vec3& attenuation, Ray& scattered){
         glm::vec3 outNormal;
         glm::vec3 reflected = reflect(rIn.getDirection(), rec.normal);
         glm::vec3 refracted;
@@ -102,7 +103,7 @@ public:
         }
 
         std::uniform_real_distribution<> dis(0.0, 1.0);
-        if (dis(gen) < reflectProb){
+        if (realRand() < reflectProb){
             scattered = Ray(rec.p, reflected, rIn.getTime());
         }
         else {
