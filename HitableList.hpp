@@ -7,6 +7,7 @@ class HitableList : public Hitable{
     HitableList();
     HitableList(Hitable **l, int s) : list(l), listSize(s) {};
     virtual bool hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) const;
+    virtual bool boundingBox(double t0, double t1, AABB& box) const; 
 
     private:
     Hitable **list;
@@ -25,4 +26,22 @@ bool HitableList::hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) co
         }
     }
     return hitted;
+}
+
+bool HitableList::boundingBox(double t0, double t1, AABB& box) const{
+    if (listSize < 1) return false;
+    AABB tmpBox;
+    bool first = list[0]->boundingBox(t0, t1, tmpBox);
+    if (!first)
+        return false;
+    else
+        box = tmpBox;
+
+    for (int i = 1; i < listSize; ++i){
+        if (list[i]->boundingBox(t0, t1, tmpBox))
+            box = surroundingBox(box, tmpBox);
+        else
+            return false;
+    }
+    return true;
 }
