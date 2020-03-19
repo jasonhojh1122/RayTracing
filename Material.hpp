@@ -5,6 +5,7 @@
 #include "Hitable.hpp"
 #include "Ray.hpp"
 #include "RealRand.hpp"
+#include "Texture.hpp"
 
 glm::vec3 randomPointInUnitSphere(){
     std::uniform_real_distribution<> dis(0.0, 1.0);
@@ -45,16 +46,16 @@ public:
 
 class Lambertian : public Material{
 public:
-    Lambertian(glm::vec3 a){albedo = a;};
+    Lambertian(Texture *a){albedo = a;};
     virtual bool scatter(Ray& rIn, hitRecord& rec, glm::vec3& attenuation, Ray& scattered) override{
         glm::vec3 target = rec.p + rec.normal + randomPointInUnitSphere();
         scattered = Ray(rec.p, target - rec.p, rIn.getTime());
-        attenuation = albedo;
+        attenuation = albedo->value(0, 0, rec.p);
         return true;
     }
 
 private:
-    glm::vec3 albedo;
+    Texture *albedo;
 };
 
 class Metal : public Material{

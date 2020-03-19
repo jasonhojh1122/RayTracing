@@ -2,7 +2,6 @@
 
 #include <stdexcept>
 #include "Hitable.hpp"
-#include "HitableList.hpp"
 #include "RealRand.hpp"
 
 class BVHNode : public Hitable {
@@ -11,8 +10,6 @@ public:
     BVHNode(Hitable **l, int n, double t0, double t1);
     virtual bool hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) const;
     virtual bool boundingBox(double t0, double t1, AABB& box) const;
-
-private:
     Hitable *left;
     Hitable *right;
     AABB box;
@@ -55,10 +52,10 @@ int boxZCompare(const void *a, const void *b){
 }
 
 BVHNode::BVHNode(Hitable **l, int n, double t0, double t1){
-    int axis = (int)(3 * realRand());
-    if (axis == 0)
+    float axis = 3.0 * realRand();
+    if (axis < 1.0)
         qsort(l, n, sizeof(Hitable*), boxXCompare);
-    else if (axis == 1)
+    else if (axis < 2.0)
         qsort(l, n, sizeof(Hitable*), boxYCompare);
     else
         qsort(l, n, sizeof(Hitable*), boxZCompare);

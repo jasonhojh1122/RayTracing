@@ -4,7 +4,6 @@
 #include <limits.h>
 
 #include "Ray.hpp"
-#include "HitableList.hpp"
 #include "Sphere.hpp"
 #include "Camera.hpp"
 #include "Material.hpp"
@@ -31,7 +30,13 @@ glm::vec3 color(Ray& ray, Hitable *world, int depth){
 Hitable *randomScene(){
     int n = 5000;
     Hitable **list = new Hitable*[n+1];
-    list[0] = new Sphere(glm::vec3(0.0, -1000.0, 0.0), 1000.0, new Lambertian(glm::vec3(0.5, 0.5, 0.5)));
+    list[0] = new Sphere(glm::vec3(0.0, -1000.0, 0.0), 1000.0, 
+                        new Lambertian( 
+                            new CheckerTexture(
+                                new ConstantTexture(glm::vec3(0.2, 0.3, 0.1)), new ConstantTexture(glm::vec3(0.9, 0.9, 0.9))
+                                )
+                            )
+                        );
     int i = 1;
     std::uniform_real_distribution<> dis(0.0, 1.0);
     for (int a = -10; a < 10; ++a){
@@ -42,7 +47,7 @@ Hitable *randomScene(){
                 if (chooseMat < 0.75) {
                     // list[i++] = new Sphere(center, 0.2, new Lambertian(glm::vec3(realRand() * realRand(), realRand() * realRand(), realRand() * realRand())));
                     list[i++] = new MovingSphere(center, center + glm::vec3(0.0, 0.5*realRand(), 0.0), 0.0, 1.0, 
-                                        0.2, new Lambertian(glm::vec3(realRand()*realRand(), realRand()*realRand(), realRand()*realRand())));
+                                        0.2, new Lambertian(new ConstantTexture(glm::vec3(realRand()*realRand(), realRand()*realRand(), realRand()*realRand()))));
                 }
                 else if (chooseMat < 0.95){
                     list[i++] = new Sphere(center, 0.2,
@@ -55,15 +60,15 @@ Hitable *randomScene(){
         }
     }
     list[i++] = new Sphere(glm::vec3(0, 1, 0), 1.0, new Dielectric(1.5));
-    list[i++] = new Sphere(glm::vec3(-4, 1, 0), 1.0, new Lambertian(glm::vec3(0.4, 0.2, 0.1)));
+    list[i++] = new Sphere(glm::vec3(-4, 1, 0), 1.0, new Lambertian(new ConstantTexture(glm::vec3(0.4, 0.2, 0.1))));
     list[i++] = new Sphere(glm::vec3(4, 1, 0), 1.0, new Metal(glm::vec3(0.7, 0.6, 0.5), 0.0));
     return new HitableList(list, i);
 }
 
 int main(){
 
-    int width = 1200;
-    int height = 800;
+    int width = 600;
+    int height = 400;
     float aspect = (float)width / (float)height;
     int ns = 15;
 
