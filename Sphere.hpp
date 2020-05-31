@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include "Hitable.hpp"
 
 class Sphere : public Hitable{
@@ -10,6 +11,8 @@ public:
     virtual bool boundingBox(float t0, float t1, AABB& box) const;
 
 private:
+    void getTextureCoordinate(hitRecord& rec) const;
+
     glm::vec3 center;
     float radius;
     Material *matPtr;
@@ -29,6 +32,7 @@ bool Sphere::hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) const{
             rec.p = ray.getPointAt(rec.t);
             rec.normal = (rec.p - center) / radius;
             rec.matPtr = matPtr;
+            getTextureCoordinate(rec);
             return true;
         }
         temp = (-b + sqrt(det)) / (2.0f * a);
@@ -37,6 +41,7 @@ bool Sphere::hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) const{
             rec.p = ray.getPointAt(rec.t);
             rec.normal = (rec.p - center) / radius;
             rec.matPtr = matPtr;
+            getTextureCoordinate(rec);
             return true;
         }
     }
@@ -46,6 +51,13 @@ bool Sphere::hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) const{
 bool Sphere::boundingBox(float t0, float t1, AABB& box) const {
     box = AABB(center - glm::vec3(radius, radius, radius), center + glm::vec3(radius, radius, radius));
     return true;
+}
+
+void Sphere::getTextureCoordinate(hitRecord& rec) const {
+    float phi = atan2(rec.normal.z, rec.normal.x);
+    float theta = asin(rec.normal.y);
+    rec.u = 1 - (phi + M_PI) / (2 * M_PI);
+    rec.v = (theta + M_PI / 2) / M_PI;
 }
 
 

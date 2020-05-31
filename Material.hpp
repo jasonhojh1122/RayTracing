@@ -50,7 +50,7 @@ public:
     virtual bool scatter(Ray& rIn, hitRecord& rec, glm::vec3& attenuation, Ray& scattered) override{
         glm::vec3 target = rec.p + rec.normal + randomPointInUnitSphere();
         scattered = Ray(rec.p, target - rec.p, rIn.getTime());
-        attenuation = albedo->value(0, 0, rec.p);
+        attenuation = albedo->value(rec.u, rec.v, rec.p);
         return true;
     }
 

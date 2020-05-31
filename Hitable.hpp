@@ -6,7 +6,8 @@
 class Material;
 
 struct hitRecord{
-    float t;
+    float t; // ray parameter
+    float u, v; // texture coordniate
     glm::vec3 p; //ray point at
     glm::vec3 normal;
     Material *matPtr;

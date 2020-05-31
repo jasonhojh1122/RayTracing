@@ -1,80 +1,91 @@
 #pragma once
 
 #include <cstdlib>
+#include <vector>
 #include <algorithm>
 #include "../Include/glm/glm.hpp"
 #include "RealRand.hpp"
 
-inline float linearInterp(float c[2][2][2], float u, float v, float w) {
-    float accum = 0.0;
+inline double fade(double t) {
+    // return t*t*(3-2*t);
+    return t * t * t * (t * (t * 6 - 15) + 10);
+}
+
+double linearInterp(glm::vec3 c[2][2][2], double u, double v, double w) {
+    double uu = fade(u);
+    double vv = fade(v);
+    double ww = fade(w);
+    double accum = 0.0;
     for (int i = 0; i < 2; ++i) {
         for (int j = 0; j < 2; ++j) {
             for (int k = 0; k < 2; ++k) {
-                accum += (i*u + (1-i)*(1-u))*
-                         (j*v + (1-j)*(1-v))*
-                         (k*w + (1-k)*(1-w))*c[i][j][k];
+                glm::vec3 weightVector(u - (double)i, v - (double)j, w - (double)k);
+                accum += (i*uu + (1-i)*(1-uu))*
+                         (j*vv + (1-j)*(1-vv))*
+                         (k*ww + (1-k)*(1-ww))* glm::dot<3, double, glm::qualifier::highp>(c[i][j][k], weightVector);
             }
         }
     }
     return accum;
 }
 
-inline float fade(float t) {
-    // return t*t*(3-2*t);
-    return t * t * t * (t * (t * 6 - 15) + 10);
-}
-
 class Perlin {
 public:
-    float noise(const glm::vec3& p) const {
-        float u = p.x - floor(p.x);
-        float v = p.y - floor(p.y);
-        float w = p.z - floor(p.z);
-        u = fade(u);
-        v = fade(v);
-        w = fade(w);
+    double noise(const glm::vec3& p) const {
+        double u = p.x - floor(p.x);
+        double v = p.y - floor(p.y);
+        double w = p.z - floor(p.z);
         int i = floor(p.x);
         int j = floor(p.y);
         int k = floor(p.z);
-        float c[2][2][2];
+        glm::vec3 c[2][2][2];
         for (int di = 0; di < 2; ++di) {
             for (int dj = 0; dj < 2; ++dj) {
                 for (int dk = 0; dk < 2; ++dk) {
-                    c[di][dj][dk] = randFloat[permX[(i+di)&255] ^ permY[(j+dj)&255] ^ permZ[(k+dk)&255]];
+                    c[di][dj][dk] = randVector[permX[(i+di)&255] ^ permY[(j+dj)&255] ^ permZ[(k+dk)&255]];
                 }
             }
         }
         return linearInterp(c, u, v, w);
     }
 
-    static float* randFloat;
-    static int *permX;
-    static int *permY;
-    static int *permZ;
+    double turb(const glm::vec3& p, int depth = 7) const {
+        double accum = 0.0;
+        glm::vec3 temp_p = p;
+        double weight = 1.0;
+        for (int i = 0; i < depth; ++i) {
+            accum += weight * noise(temp_p);
+            weight *= 0.5;
+            temp_p *= 2.0;
+        }
+        return fabs(accum);
+    }
+
+    static std::vector<glm::vec3> randVector;
+    static int* permX;
+    static int* permY;
+    static int* permZ;
 };
 
-static float *randomFloat() {
-    float *p = new float[256];
-    for (int i = 0; i < 256; ++i)
-        p[i] = realRand();
+static std::vector<glm::vec3> randomVector() {
+    std::vector<glm::vec3> p;
+    p.resize(256);
+    for (int i = 0; i < 256; ++i) {
+        p[i] = glm::vec3(2.0 * realRand() - 1.0, 2.0 * realRand() - 1.0, 2.0 * realRand() - 1.0);
+        p[i] = glm::normalize(p[i]);
+    }
     return p;
-}
-
-void permute(int *p, int n){
-    std::random_device rd;
-    std::mt19937 g(rd());
-    std::shuffle(p, p+n, g);
 }
 
 static int* perlinPermute(){
     int *p = new int[256];
     for (int i = 0; i < 256; ++i)
         p[i] = i;
-    permute(p, 256);
+    std::shuffle(p, p+256, gen);
     return p;
 }
 
-float *Perlin::randFloat = randomFloat();
-int *Perlin::permX = perlinPermute();
-int *Perlin::permY = perlinPermute();
-int *Perlin::permZ = perlinPermute();
+std::vector<glm::vec3> Perlin::randVector = randomVector();
+int* Perlin::permX = perlinPermute();
+int* Perlin::permY = perlinPermute();
+int* Perlin::permZ = perlinPermute();

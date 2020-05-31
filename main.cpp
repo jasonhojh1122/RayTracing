@@ -1,4 +1,5 @@
 #define _USE_MATH_DEFINES
+#define STB_IMAGE_IMPLEMENTATION
 #include <cmath>
 #include <iostream>
 #include <limits.h>
@@ -82,6 +83,14 @@ Hitable *twoCheckerSpheres() {
     return new HitableList(list, 2);
 }
 
+Hitable *testImageTexture() {
+    Texture* imageTex = new ImageTexture("texture/earthmap.jpg");
+    Hitable** list = new Hitable*[2];
+    list[0] = new Sphere(glm::vec3(0, -1000, 0), 1000, new Lambertian(new ConstantTexture(glm::vec3(0.8, 0.8, 0.8))));
+    list[1] = new Sphere(glm::vec3(0, 2, 0), 2, new Lambertian(imageTex));
+    return new HitableList(list, 2);
+}
+
 int main(){
     srand( time(NULL) );
     int width = 600;
@@ -105,7 +114,7 @@ int main(){
     list[4] = new Sphere(glm::vec3(-1.0, 0.0, -1.0), -0.3, new Dielectric(1.8));
     Hitable *world = new HitableList(list, 5);
     */
-    Hitable *world = testPerlin();
+    Hitable *world = testImageTexture();
 
     std::cout << "P3\n" << width << " " << height << "\n255\n";
     
