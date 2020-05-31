@@ -7,9 +7,9 @@
 class BVHNode : public Hitable {
 public:
     BVHNode() {}
-    BVHNode(Hitable **l, int n, double t0, double t1);
+    BVHNode(Hitable **l, int n, float t0, float t1);
     virtual bool hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) const;
-    virtual bool boundingBox(double t0, double t1, AABB& box) const;
+    virtual bool boundingBox(float t0, float t1, AABB& box) const;
     Hitable *left;
     Hitable *right;
     AABB box;
@@ -51,17 +51,21 @@ int boxZCompare(const void *a, const void *b){
         return 1;
 }
 
-BVHNode::BVHNode(Hitable **l, int n, double t0, double t1){
-    float axis = 3.0 * realRand();
-    if (axis < 1.0)
+BVHNode::BVHNode(Hitable **l, int n, float t0, float t1){
+    int axis = int(3.0 * realRand());
+    if (axis == 0) {
         qsort(l, n, sizeof(Hitable*), boxXCompare);
-    else if (axis < 2.0)
+    }
+    else if (axis == 1) {
         qsort(l, n, sizeof(Hitable*), boxYCompare);
-    else
+    }        
+    else {
         qsort(l, n, sizeof(Hitable*), boxZCompare);
+    }
 
-    if (n == 1)
+    if (n == 1) {
         left = right = l[0];
+    }
     else if (n == 2){
         left = l[0];
         right = l[1];
@@ -76,24 +80,24 @@ BVHNode::BVHNode(Hitable **l, int n, double t0, double t1){
     box = surroundingBox(leftBox, rightBox);
 }
 
-bool BVHNode::hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) const{
-    if (box.hit(ray, tMin, tMax)){
+bool BVHNode::hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) const {
+    if (box.hit(ray, tMin, tMax)) {
         hitRecord recLeft, recRight;
         bool hitLeft, hitRight;
         hitLeft  = left->hit(ray, tMin, tMax, recLeft);
         hitRight = right->hit(ray, tMin, tMax, recRight);
-        if (hitLeft && hitRight){
+        if (hitLeft && hitRight) {
             if (recLeft.t < recRight.t)
                 rec = recLeft;
             else
                 rec = recRight;
             return true;
         }
-        else if (hitLeft){
+        else if (hitLeft) {
             rec = recLeft;
             return true;
         }
-        else if (hitRight){
+        else if (hitRight) {
             rec = recRight;
             return true;
         }
@@ -102,7 +106,7 @@ bool BVHNode::hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) const{
     else return false;
 }
 
-bool BVHNode::boundingBox(double t0, double t1, AABB& b) const{
+bool BVHNode::boundingBox(float t0, float t1, AABB& b) const{
     b = box;
     return true;
 }

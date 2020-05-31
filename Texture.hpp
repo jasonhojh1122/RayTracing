@@ -1,6 +1,7 @@
 #pragma once
 #include <cmath>
 #include "../Include/glm/glm.hpp"
+#include "Perlin.hpp"
 
 class Texture {
 public:
@@ -33,4 +34,17 @@ public:
 private:
     Texture *even;
     Texture *odd;
+};
+
+
+class NoiseTexture : public Texture {
+public:
+    NoiseTexture() {}
+    NoiseTexture(float sc) : scale(sc) {}
+    virtual glm::vec3 value(float u, float v, const glm::vec3& p) const {
+        return glm::vec3(1, 1, 1) * noise.noise(scale * p);
+    }
+
+    Perlin noise;
+    float scale;
 };

@@ -7,7 +7,7 @@ public:
     Sphere() {};
     Sphere(glm::vec3 cen, float r, Material *mat) : center(cen), radius(r), matPtr(mat) {};
     virtual bool hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) const;
-    virtual bool boundingBox(double t0, double t1, AABB& box) const;
+    virtual bool boundingBox(float t0, float t1, AABB& box) const;
 
 private:
     glm::vec3 center;
@@ -43,7 +43,7 @@ bool Sphere::hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) const{
     return false;
 }
 
-bool Sphere::boundingBox(double t0, double t1, AABB& box) const {
+bool Sphere::boundingBox(float t0, float t1, AABB& box) const {
     box = AABB(center - glm::vec3(radius, radius, radius), center + glm::vec3(radius, radius, radius));
     return true;
 }
@@ -59,7 +59,7 @@ public:
         matPtr = m;
     }
     virtual bool hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) const;
-    virtual bool boundingBox(double t0, double t1, AABB& box) const;
+    virtual bool boundingBox(float t0, float t1, AABB& box) const;
     glm::vec3 getCenter(double time) const;
 
 private:
@@ -101,7 +101,7 @@ glm::vec3 MovingSphere::getCenter(double time) const{
     return center0 + (float)((time - time0) / (time1 - time0)) * (center1 - center0);
 }
 
-bool MovingSphere::boundingBox(double t0, double t1, AABB& box) const {
+bool MovingSphere::boundingBox(float t0, float t1, AABB& box) const {
     AABB box0 = AABB(center0 - glm::vec3(radius, radius, radius), center0 + glm::vec3(radius, radius, radius));
     AABB box1 = AABB(center1 - glm::vec3(radius, radius, radius), center1 + glm::vec3(radius, radius, radius));
     box = surroundingBox(box0, box1);

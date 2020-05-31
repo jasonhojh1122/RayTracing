@@ -28,7 +28,7 @@ glm::vec3 color(Ray& ray, Hitable *world, int depth){
 }
 
 Hitable *randomScene(){
-    int n = 5000;
+    int n = 1000;
     Hitable **list = new Hitable*[n+1];
     list[0] = new Sphere(glm::vec3(0.0, -1000.0, 0.0), 1000.0, 
                         new Lambertian( 
@@ -65,8 +65,25 @@ Hitable *randomScene(){
     return new HitableList(list, i);
 }
 
-int main(){
+Hitable *testPerlin() {
+    Texture *perlinTex = new NoiseTexture(8.0f);
+    Hitable **list = new Hitable*[2];
+    list[0] = new Sphere(glm::vec3(0, -1000, 0), 1000, new Lambertian(perlinTex));
+    list[1] = new Sphere(glm::vec3(0, 2, 0), 2, new Lambertian(perlinTex));
+    return new HitableList(list, 2);
+}
 
+Hitable *twoCheckerSpheres() {
+    Texture *checker = new CheckerTexture(new ConstantTexture(glm::vec3(0, 0, 0)), new ConstantTexture(glm::vec3(1, 1, 1)));
+    int n = 2;
+    Hitable **list = new Hitable*[n];
+    list[0] = new Sphere(glm::vec3(0, 10, 0), 10, new Lambertian(checker));
+    list[1] = new Sphere(glm::vec3(0, -10, 0), 10, new Lambertian(checker));
+    return new HitableList(list, 2);
+}
+
+int main(){
+    srand( time(NULL) );
     int width = 600;
     int height = 400;
     float aspect = (float)width / (float)height;
@@ -88,7 +105,7 @@ int main(){
     list[4] = new Sphere(glm::vec3(-1.0, 0.0, -1.0), -0.3, new Dielectric(1.8));
     Hitable *world = new HitableList(list, 5);
     */
-    Hitable *world = randomScene();
+    Hitable *world = testPerlin();
 
     std::cout << "P3\n" << width << " " << height << "\n255\n";
     

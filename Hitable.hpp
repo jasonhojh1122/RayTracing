@@ -5,19 +5,9 @@
 
 class Material;
 
-AABB surroundingBox(AABB box0, AABB box1) {
-    glm::vec3 small(ffmin(box0.getMin().x, box1.getMin().x),
-                    ffmin(box0.getMin().y, box1.getMin().y),
-                    ffmin(box0.getMin().z, box1.getMin().z));
-    glm::vec3 big(ffmax(box0.getMax().x, box1.getMax().x),
-                  ffmax(box0.getMax().y, box1.getMax().y),
-                  ffmax(box0.getMax().z, box1.getMax().z));
-    return AABB(small, big);
-}
-
 struct hitRecord{
     float t;
-    glm::vec3 p;
+    glm::vec3 p; //ray point at
     glm::vec3 normal;
     Material *matPtr;
 };
@@ -25,7 +15,7 @@ struct hitRecord{
 class Hitable{
     public:
     virtual bool hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) const = 0;
-    virtual bool boundingBox(double t0, double t1, AABB& box) const = 0;
+    virtual bool boundingBox(float t0, float t1, AABB& box) const = 0;
 };
 
 class HitableList : public Hitable{
@@ -33,7 +23,7 @@ class HitableList : public Hitable{
     HitableList();
     HitableList(Hitable **l, int s) : list(l), listSize(s) {};
     virtual bool hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) const;
-    virtual bool boundingBox(double t0, double t1, AABB& box) const; 
+    virtual bool boundingBox(float t0, float t1, AABB& box) const; 
 
     private:
     Hitable **list;
@@ -54,7 +44,7 @@ bool HitableList::hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) co
     return hitted;
 }
 
-bool HitableList::boundingBox(double t0, double t1, AABB& box) const{
+bool HitableList::boundingBox(float t0, float t1, AABB& box) const{
     if (listSize < 1) return false;
     AABB tmpBox;
     bool first = list[0]->boundingBox(t0, t1, tmpBox);

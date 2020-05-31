@@ -19,14 +19,16 @@ public:
             float dirA = 1 / ray.getDirection()[a];
             float t0 = (_min[a] - ray.getBase()[a]) * dirA;
             float t1 = (_min[a] - ray.getBase()[a]) * dirA;
-            if (dirA < 0.0f)
+            if (dirA < 0.0f) {
                 std::swap(t0, t1);
+            }
 
             tmin = ffmax(t0, tmin);
             tmax = ffmin(t1, tmax);
 
-            if (tmax <= tmin)
+            if (tmax <= tmin) {
                 return false;
+            }
         }
         return true;
     }
@@ -34,3 +36,13 @@ public:
 private:
     glm::vec3 _min, _max;
 };
+
+AABB surroundingBox(AABB box0, AABB box1) {
+    glm::vec3 small(ffmin(box0.getMin().x, box1.getMin().x),
+                    ffmin(box0.getMin().y, box1.getMin().y),
+                    ffmin(box0.getMin().z, box1.getMin().z));
+    glm::vec3 big(ffmax(box0.getMax().x, box1.getMax().x),
+                  ffmax(box0.getMax().y, box1.getMax().y),
+                  ffmax(box0.getMax().z, box1.getMax().z));
+    return AABB(small, big);
+}
