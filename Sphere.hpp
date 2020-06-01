@@ -78,7 +78,7 @@ private:
     glm::vec3 center0, center1;
     float radius;
     double time0, time1;
-    Material*matPtr;
+    Material* matPtr;
 };
 
 bool MovingSphere::hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) const{

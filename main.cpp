@@ -8,23 +8,28 @@
 #include "Sphere.hpp"
 #include "Camera.hpp"
 #include "Material.hpp"
+#include "Rectangles.hpp"
 
 glm::vec3 color(Ray& ray, Hitable *world, int depth){
     hitRecord rec;
     if (world->hit(ray, 0.001, FLT_MAX, rec)){
         Ray scattered;
         glm::vec3 attenuation;
+        glm::vec3 emitted = rec.matPtr->emitted(rec.u, rec.v, rec.p);
         if (depth < 50 && rec.matPtr->scatter(ray, rec, attenuation, scattered)){
-            return attenuation * color(scattered, world, depth+1);
+            return emitted + attenuation * color(scattered, world, depth+1);
         }
         else {
-            return glm::vec3(0.0, 0.0, 0.0);
+            return emitted;
         }
     }
     else {
+        return glm::vec3(0, 0, 0);
+        /*
         glm::vec3 unitDirection = glm::normalize(ray.getDirection());
         float t = 0.5f * (unitDirection.y + 1.0f);
         return glm::vec3(1.0, 1.0, 1.0) * (1 - t) + glm::vec3(0.7, 0.5, 1.0) * t;
+        */
     }
 }
 
@@ -91,6 +96,15 @@ Hitable *testImageTexture() {
     return new HitableList(list, 2);
 }
 
+Hitable *testLighting() {
+    Texture *perlinTex = new NoiseTexture(8.0f);
+    Hitable **list = new Hitable*[3];
+    list[0] = new Sphere(glm::vec3(0, -1000, 0), 1000, new Lambertian(perlinTex));
+    list[1] = new Sphere(glm::vec3(0, 2, 0), 2, new Lambertian(perlinTex));
+    list[2] = new XYRect(-2, 2, 2, 6, -4, new DiffuseLight(new ConstantTexture(glm::vec3(4, 4, 4))));
+    return new HitableList(list, 3);
+}
+
 int main(){
     srand( time(NULL) );
     int width = 600;
@@ -98,8 +112,8 @@ int main(){
     float aspect = (float)width / (float)height;
     int ns = 15;
 
-    glm::vec3 lookFrom(13.0f, 2.0f, 3.0f);
-    glm::vec3 lookAt(0.0f, 0.0f, 0.0f);
+    glm::vec3 lookFrom(20.0f, 5.0f, 0.0f);
+    glm::vec3 lookAt(0.0f, 2.0f, 0.0f);
     float distToFocus = 10.0;
     float aperture = 0.0;
     float vFov = 20;
@@ -114,7 +128,7 @@ int main(){
     list[4] = new Sphere(glm::vec3(-1.0, 0.0, -1.0), -0.3, new Dielectric(1.8));
     Hitable *world = new HitableList(list, 5);
     */
-    Hitable *world = testImageTexture();
+    Hitable *world = testLighting();
 
     std::cout << "P3\n" << width << " " << height << "\n255\n";
     

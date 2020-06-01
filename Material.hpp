@@ -42,6 +42,7 @@ float schlick(float cosine, float refIdx){
 class Material{
 public:
     virtual bool scatter(Ray& rIn, hitRecord& rec, glm::vec3& attenuation, Ray& scattered) = 0;
+    virtual glm::vec3 emitted(float u, float v, const glm::vec3& p) const { return glm::vec3(0, 0, 0); }
 };
 
 class Lambertian : public Material{
@@ -115,4 +116,17 @@ public:
 
 private:
     float refIdx;
+};
+
+class DiffuseLight : public Material {
+public:
+    DiffuseLight(Texture* a) : emit(a) {}
+    virtual bool scatter(Ray& rIn, hitRecord& rec, glm::vec3& attenuation, Ray& scattered) override { 
+        return false;
+    }
+    virtual glm::vec3 emitted(float u, float v, const glm::vec3& p) const {
+        return emit->value(u, v, p);
+    }
+private:
+    Texture* emit;
 };

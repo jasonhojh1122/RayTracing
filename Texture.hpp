@@ -67,10 +67,8 @@ public:
         int i = u * width;
         int j = (1-v) * height - 0.0001;
         
-        if (i < 0) i = 0;
-        if (j < 0) j = 0;
-        if (i >= width) i = width - 1;
-        if (j >= height) j = height - 1;
+        i = std::clamp(i, 0, width - 1);
+        j = std::clamp(j, 0, height - 1);
 
         float r = (int)pixels[j * BYTES_PER_PIXEL * width + i * BYTES_PER_PIXEL] / 255.0f;
         float g = (int)pixels[j * BYTES_PER_PIXEL * width + i * BYTES_PER_PIXEL + 1] / 255.0f;
