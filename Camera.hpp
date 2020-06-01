@@ -7,7 +7,6 @@
 #include "RealRand.hpp"
 
 glm::vec3 randomInUnitDisk(){
-    std::uniform_real_distribution<> dis(0.0, 1.0);
     glm::vec3 p;
     do {
         p = 2.0f * glm::vec3(realRand(), realRand(), 0.0f) - glm::vec3(1.0f, 1.0f, 0.0f);
@@ -37,7 +36,6 @@ public:
     Ray getRay(float s, float t){
         glm::vec3 rd = lensRadius * randomInUnitDisk();
         glm::vec3 offset = u * rd.x + v * rd.y;
-        std::uniform_real_distribution<> dis(0.0, 1.0);
         double time = time0 + realRand() * (time1 - time0);
         return Ray(origin + offset, lowerLeftCorner + s * horizontal + t * vertical - origin - offset, time);
     }

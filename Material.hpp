@@ -48,7 +48,7 @@ public:
 class Lambertian : public Material{
 public:
     Lambertian(Texture *a){albedo = a;};
-    virtual bool scatter(Ray& rIn, hitRecord& rec, glm::vec3& attenuation, Ray& scattered) override{
+    virtual bool scatter(Ray& rIn, hitRecord& rec, glm::vec3& attenuation, Ray& scattered) override {
         glm::vec3 target = rec.p + rec.normal + randomPointInUnitSphere();
         scattered = Ray(rec.p, target - rec.p, rIn.getTime());
         attenuation = albedo->value(rec.u, rec.v, rec.p);

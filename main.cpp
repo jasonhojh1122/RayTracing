@@ -105,30 +105,48 @@ Hitable *testLighting() {
     return new HitableList(list, 3);
 }
 
+Hitable *cornellBox() {
+    Texture *imageTex = new ImageTexture("texture/earthmap.jpg");
+    Hitable **list = new Hitable*[8];
+    Material* red = new Lambertian(new ConstantTexture(glm::vec3(0.65, 0.05, 0.05)));
+    Material* green = new Lambertian(new ConstantTexture(glm::vec3(0.12, 0.45, 0.15)));
+    Material* white = new Lambertian(new ConstantTexture(glm::vec3(0.73, 0.73, 0.73)));
+    Material* gray = new Lambertian(new ConstantTexture(glm::vec3(0.21, 0.21, 0.21)));
+    Material* light = new DiffuseLight(new ConstantTexture(glm::vec3(15.0, 15.0, 15.0)));
+
+    list[0] = new InverseNormal(new YZRect(0, 555, 0, 555, 555, green)); //left
+    list[1] = new YZRect(0, 555, 0, 555, 0, red); //right
+    
+    list[2] = new InverseNormal(new XZRect(0, 555, 0, 555, 555, white)); //top
+    list[3] = new XZRect(0, 555, 0, 555, 0, white); //down
+    
+    //back
+    list[4] = new InverseNormal(new XYRect(0, 555, 0, 555, 555, white));
+
+    //light
+    list[5] = new InverseNormal(new XZRect(213, 343, 227, 332, 554, light));
+
+    //box
+    list[6] = new Box(glm::vec3(130, 0, 65), glm::vec3(295, 165, 230), white);
+    list[7] = new Box(glm::vec3(265, 0, 295), glm::vec3(430, 330, 460), white);
+
+    return new HitableList(list, 8);
+}
+
 int main(){
-    srand( time(NULL) );
     int width = 600;
-    int height = 400;
+    int height = 600;
     float aspect = (float)width / (float)height;
     int ns = 15;
 
-    glm::vec3 lookFrom(20.0f, 5.0f, 0.0f);
-    glm::vec3 lookAt(0.0f, 2.0f, 0.0f);
-    float distToFocus = 10.0;
+    glm::vec3 lookFrom(278.0f, 278.0f, -800.0f);
+    glm::vec3 lookAt(278.0f, 278.0f, 0.0f);
+    float distToFocus = 20.0f;
     float aperture = 0.0;
-    float vFov = 20;
+    float vFov = 40;
     Camera camera(lookFrom, lookAt, glm::vec3(0.0f, 1.0f, 0.0f), vFov, aspect, aperture, distToFocus, 0.0, 1.0);
 
-    /*
-    Hitable *list[5];
-    list[0] = new Sphere(glm::vec3(0.0, 0.0, -1.0), 0.5, new Lambertian(glm::vec3(0.8, 0.3, 0.3)));
-    list[1] = new Sphere(glm::vec3(0.0, -100.5, -1.0), 100, new Lambertian(glm::vec3(0.8, 0.8, 0.0)));
-    list[2] = new Sphere(glm::vec3(1.0, 0.0, -1.0), 0.5, new Metal(glm::vec3(0.8, 0.6, 0.2), 0.3));
-    list[3] = new Sphere(glm::vec3(-1.0, 0.0, -1.0), 0.5, new Dielectric(1.5));
-    list[4] = new Sphere(glm::vec3(-1.0, 0.0, -1.0), -0.3, new Dielectric(1.8));
-    Hitable *world = new HitableList(list, 5);
-    */
-    Hitable *world = testLighting();
+    Hitable *world = cornellBox();
 
     std::cout << "P3\n" << width << " " << height << "\n255\n";
     

@@ -62,3 +62,23 @@ bool HitableList::boundingBox(float t0, float t1, AABB& box) const{
     }
     return true;
 }
+
+class InverseNormal : public Hitable {
+public:
+    InverseNormal(Hitable* _origin) : origin(_origin) {}
+    virtual bool hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) const {
+        if (origin->hit(ray, tMin, tMax, rec)) {
+            rec.normal = -1.0f * rec.normal;
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    virtual bool boundingBox(float t0, float t1, AABB& box) const {
+        return origin->boundingBox(t0, t1, box);
+    }
+
+private:
+    Hitable* origin;
+};
