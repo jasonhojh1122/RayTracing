@@ -112,7 +112,7 @@ Hitable *cornellBox() {
     Material* green = new Lambertian(new ConstantTexture(glm::vec3(0.12, 0.45, 0.15)));
     Material* white = new Lambertian(new ConstantTexture(glm::vec3(0.73, 0.73, 0.73)));
     Material* gray = new Lambertian(new ConstantTexture(glm::vec3(0.21, 0.21, 0.21)));
-    Material* light = new DiffuseLight(new ConstantTexture(glm::vec3(15.0, 15.0, 15.0)));
+    Material* light = new DiffuseLight(new ConstantTexture(glm::vec3(5.0, 5.0, 5.0)));
 
     list[0] = new InverseNormal(new YZRect(0, 555, 0, 555, 555, green)); //left
     list[1] = new YZRect(0, 555, 0, 555, 0, red); //right
@@ -124,29 +124,32 @@ Hitable *cornellBox() {
     list[4] = new InverseNormal(new XYRect(0, 555, 0, 555, 555, white));
 
     //light
-    list[5] = new InverseNormal(new XZRect(213, 343, 227, 332, 554, light));
+    list[5] = new InverseNormal(new XZRect(113, 443, 127, 432, 554, light));
 
     //box
-    list[6] = new Translate(new RotateY (
+    Hitable* box1 = new Translate(new RotateY (
                                     new Box(glm::vec3(0, 0, 0), glm::vec3(165, 165, 165), white), 
                                     -18
                             ), 
-                            glm::vec3(130, 0, 65));
+                            glm::vec3(130, 1, 65));
     
-    list[7] = new Translate(new RotateY (
-                                    new Box(glm::vec3(0, 0, 0), glm::vec3(165, 330, 165), white), 
+    Hitable* box2 = new Translate(new RotateY (
+                                    new Box(glm::vec3(0, 0, 0), glm::vec3(165, 330, 165), white),
                                     15
-                            ), 
-                            glm::vec3(265, 0, 295));
+                            ),
+                            glm::vec3(265, 1, 295));
 
+    list[6] = new Volume(box1, 0.01f, new Isotropic(new ConstantTexture(glm::vec3(1.0, 1.0, 1.0))));
+    list[7] = new Volume(box2, 0.01f, new Isotropic(new ConstantTexture(glm::vec3(0.0, 0.0, 0.0))));
+    
     return new HitableList(list, 8);
 }
 
 int main(){
-    int width = 1200;
-    int height = 1200;
+    int width = 600;
+    int height = 600;
     float aspect = (float)width / (float)height;
-    int ns = 64;
+    int ns = 16;
 
     glm::vec3 lookFrom(278.0f, 278.0f, -800.0f);
     glm::vec3 lookAt(278.0f, 278.0f, 0.0f);

@@ -130,3 +130,16 @@ public:
 private:
     Texture* emit;
 };
+
+class Isotropic : public Material {
+public:
+    Isotropic(Texture* tex) : albedo(tex) {}
+    virtual bool scatter(Ray& rIn, hitRecord& rec, glm::vec3& attenuation, Ray& scattered) {
+        scattered = Ray(rec.p, randomPointInUnitSphere());
+        attenuation = albedo->value(rec.u, rec.v, rec.p);
+        return true;
+    }
+
+private:
+    Texture* albedo;
+};

@@ -2,6 +2,7 @@
 #include <cfloat>
 #include "Ray.hpp"
 #include "AABB.hpp"
+#include "RealRand.hpp"
 
 class Material;
 
@@ -197,4 +198,48 @@ glm::vec3 RotateY::rotateVectorClockwise(glm::vec3 vector) const{
     temp.z = sinTheta * vector.x + cosTheta * vector.z;
     temp.y = vector.y;
     return temp;
+}
+
+class Volume : public Hitable {
+public:
+    Volume(Hitable* mesh, float d, Material* mat) {
+        boundary = mesh;
+        density = d;
+        matPtr = mat;
+    }
+    virtual bool hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) const;
+    virtual bool boundingBox(float t0, float t1, AABB& box) const {
+        return boundary->boundingBox(t0, t1, box);
+    }
+
+private:
+    Hitable* boundary;
+    float density;
+    Material* matPtr;
+};
+
+bool Volume::hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) const {
+    hitRecord rec1, rec2;
+    if (boundary->hit(ray, FLT_MIN, FLT_MAX, rec1)) {
+        if (boundary->hit(ray, rec1.t + 0.0001, FLT_MAX, rec2)) {
+            if (rec1.t < tMin) 
+                rec1.t = tMin;
+            if (rec2.t > tMax)
+                rec2.t = tMax;
+            if (rec1.t >= rec2.t)
+                return false;
+            if (rec1.t < 0)
+                rec1.t = 0;
+            float inBoundaryDistance = (rec2.t - rec1.t) * glm::length(ray.getDirection());
+            float hitDistance = -(1 / density) * log(realRand());
+            if (hitDistance < inBoundaryDistance) {
+                rec.t = rec1.t + hitDistance / glm::length(ray.getDirection());
+                rec.p = ray.getPointAt(rec.t);
+                rec.normal = glm::vec3(1, 0, 0);
+                rec.matPtr = matPtr;
+                return true;
+            }
+        }
+    }
+    return false;
 }

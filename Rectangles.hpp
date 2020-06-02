@@ -158,10 +158,10 @@ void Box::createSurfaces() {
     
     list[0] = new XZRect(p0.x, p1.x, p0.z, p1.z, p1.y, matPtr); //top
     list[1] = new InverseNormal(new XZRect(p0.x, p1.x, p0.z, p1.z, p0.y, matPtr)); //down
-    list[2] = new YZRect(p0.y, p1.y, p0.z, p1.z, p0.x, matPtr); //left
-    list[3] = new InverseNormal(new YZRect(p0.y, p1.y, p0.z, p1.z, p1.x, matPtr)); //right
-    list[4] = new XYRect(p0.x, p1.x, p0.y, p1.y, p0.z, matPtr); //front
-    list[5] = new InverseNormal(new XYRect(p0.x, p1.x, p0.y, p1.y, p1.z, matPtr)); //back
+    list[2] = new YZRect(p0.y, p1.y, p0.z, p1.z, p1.x, matPtr); //left
+    list[3] = new InverseNormal(new YZRect(p0.y, p1.y, p0.z, p1.z, p0.x, matPtr)); //right
+    list[4] = new XYRect(p0.x, p1.x, p0.y, p1.y, p1.z, matPtr); //front
+    list[5] = new InverseNormal(new XYRect(p0.x, p1.x, p0.y, p1.y, p0.z, matPtr)); //back
 
     surfaces = new HitableList(list, 6);
 }
