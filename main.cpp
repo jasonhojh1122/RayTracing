@@ -127,21 +127,30 @@ Hitable *cornellBox() {
     list[5] = new InverseNormal(new XZRect(213, 343, 227, 332, 554, light));
 
     //box
-    list[6] = new Box(glm::vec3(130, 0, 65), glm::vec3(295, 165, 230), white);
-    list[7] = new Box(glm::vec3(265, 0, 295), glm::vec3(430, 330, 460), white);
+    list[6] = new Translate(new RotateY (
+                                    new Box(glm::vec3(0, 0, 0), glm::vec3(165, 165, 165), white), 
+                                    -18
+                            ), 
+                            glm::vec3(130, 0, 65));
+    
+    list[7] = new Translate(new RotateY (
+                                    new Box(glm::vec3(0, 0, 0), glm::vec3(165, 330, 165), white), 
+                                    15
+                            ), 
+                            glm::vec3(265, 0, 295));
 
     return new HitableList(list, 8);
 }
 
 int main(){
-    int width = 600;
-    int height = 600;
+    int width = 1200;
+    int height = 1200;
     float aspect = (float)width / (float)height;
-    int ns = 15;
+    int ns = 64;
 
     glm::vec3 lookFrom(278.0f, 278.0f, -800.0f);
     glm::vec3 lookAt(278.0f, 278.0f, 0.0f);
-    float distToFocus = 20.0f;
+    float distToFocus = 10.0f;
     float aperture = 0.0;
     float vFov = 40;
     Camera camera(lookFrom, lookAt, glm::vec3(0.0f, 1.0f, 0.0f), vFov, aspect, aperture, distToFocus, 0.0, 1.0);

@@ -1,5 +1,5 @@
 #pragma once
-
+#include <cfloat>
 #include "Ray.hpp"
 #include "AABB.hpp"
 
@@ -82,3 +82,119 @@ public:
 private:
     Hitable* origin;
 };
+
+class Translate : public Hitable {
+public:
+    Translate(Hitable* p, glm::vec3 tran) : origin(p), translation(tran) {}
+    virtual bool hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) const {
+        Ray newRay(ray.getBase() - translation, ray.getDirection(), ray.getTime());
+        if (origin->hit(newRay, tMin, tMax, rec)) {
+            rec.p += translation;
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    virtual bool boundingBox(float t0, float t1, AABB& box) const {
+        if (origin->boundingBox(t0, t1, box)) {
+            box = AABB(box.getMin() + translation, box.getMax() + translation);
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+private:
+    Hitable* origin;
+    glm::vec3 translation;
+};
+
+class RotateY : public Hitable {
+public:
+    RotateY(Hitable* _mesh, float angle);
+    virtual bool hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) const;
+    virtual bool boundingBox(float t0, float t1, AABB& _box) const {
+        _box = box;
+        return hasBox;
+    }
+
+private:
+    void createBoundingBox();
+    void updateCoordinate();
+    glm::vec3 rotateVectorCounterClockwise(glm::vec3 vector) const;
+    glm::vec3 rotateVectorClockwise(glm::vec3 vector) const;
+
+    Hitable* mesh;
+    float sinTheta;
+    float cosTheta;
+    bool hasBox;
+    AABB box;
+};
+
+RotateY::RotateY(Hitable* _mesh, float _angle) {
+    mesh = _mesh;
+    float radians = _angle * M_PI / 360.0;
+    sinTheta = sin(radians);
+    cosTheta = cos(radians);
+    createBoundingBox();
+}
+
+void RotateY::createBoundingBox() {
+    glm::vec3 minCoord(FLT_MAX, FLT_MAX, FLT_MAX);
+    glm::vec3 maxCoord(FLT_MIN, FLT_MIN, FLT_MIN);
+    hasBox = mesh->boundingBox(0, 1, box);
+
+    for (int i = 0; i < 2; ++i) {
+        for (int j = 0; j < 2; ++j) {
+            for (int k = 0; k < 2; ++k) {
+                float x = i * box.getMax().x + (i - 1) * box.getMin().x;
+                float y = j * box.getMax().y + (j - 1) * box.getMin().y;
+                float z = k * box.getMax().z + (k - 1) * box.getMin().z;
+                float rotatedX = cosTheta * x + sinTheta * z;
+                float rotatedZ = -sinTheta * x + cosTheta * z;
+                glm::vec3 newVec = glm::vec3(rotatedX, y, rotatedZ);
+                for (int q = 0; q < 3; ++q) {
+                    if (newVec[q] > maxCoord[q]) maxCoord[q] = newVec[q];
+                    if (newVec[q] < minCoord[q]) minCoord[q] = newVec[q];
+                }
+            }
+        }
+    }
+    box = AABB(minCoord, maxCoord);
+}
+
+bool RotateY::hit(const Ray& ray, float tMin, float tMax, hitRecord& rec) const {
+    glm::vec3 origin = ray.getBase();
+    glm::vec3 direction = ray.getDirection();
+    origin = rotateVectorClockwise(ray.getBase());
+    direction = rotateVectorClockwise(ray.getDirection());
+    Ray rotatedRay(origin, direction, ray.getTime());
+    if  (mesh->hit(rotatedRay, tMin, tMax, rec)) {
+        glm::vec3 p, normal;
+        p = rotateVectorCounterClockwise(rec.p);
+        normal = rotateVectorCounterClockwise(rec.normal);
+        rec.p = p;
+        rec.normal = normal;
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+glm::vec3 RotateY::rotateVectorCounterClockwise(glm::vec3 vector) const{
+    glm::vec3 temp;
+    temp.x = cosTheta * vector.x + sinTheta * vector.z;
+    temp.z = -sinTheta * vector.x + cosTheta * vector.z;
+    temp.y = vector.y;
+    return temp;
+}
+glm::vec3 RotateY::rotateVectorClockwise(glm::vec3 vector) const{
+    glm::vec3 temp;
+    temp.x = cosTheta * vector.x - sinTheta * vector.z;
+    temp.z = sinTheta * vector.x + cosTheta * vector.z;
+    temp.y = vector.y;
+    return temp;
+}
