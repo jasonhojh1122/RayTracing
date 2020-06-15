@@ -3,9 +3,17 @@ bin/*
 
 # exclude output image
 *.ppm
+jpeg/*
 
 # exclude vscode setting
 .vscode/*
 
 # exclude testing code
 test.cpp
+
+# exclude demo video
+demo_video_*/*
+
+# exclude report
+*.docx
+*.tmp

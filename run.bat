@@ -1,1 +1,0 @@
-.\bin\main > test.ppm

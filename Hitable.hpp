@@ -106,10 +106,10 @@ public:
             return false;
         }
     }
+    glm::vec3 translation;
 
 private:
     Hitable* origin;
-    glm::vec3 translation;
 };
 
 class RotateY : public Hitable {

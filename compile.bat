@@ -1,1 +1,1 @@
-g++ -std=c++17 main.cpp -o ./bin/main
+g++ -std=c++17 -O3 main.cpp -o ./bin/main
